@@ -1,4 +1,4 @@
-#include "thread.h"
+/*#include "thread.h"
 #include "pcb.h"
 #include "karnel.h"
 #include <iostream.h>
@@ -132,5 +132,98 @@ void Karnel::restore(){
 		pop es
 		sti
 	}
+}
+ */
+#include "thread.h"
+#include "pcb.h"
+#include "karnel.h"
+#include <iostream.h>
+#include <dos.h>
+#include "SCHEDULE.H"
+#include "LoopT.h"
+#include "syPrintf.h"
+unsigned tsp;
+unsigned tss;
+unsigned tbp;
+volatile int Karnel::forcedDispatch = 0;
+InterruptRoutine Karnel::oldTimer = 0;
+volatile unsigned lockFlag = 1;
+//volatile contextSwitch = 0;
+//volatile int count = 20;
+void Karnel::inic(){
+	lock
+	oldTimer = swap(0x08, newTimer);
+	mainThread = new Thread();
+	mainThread->myPCB->started = 1;
+	PCB::running = mainThread->myPCB;
+	PCB::loopThread = new LoopThread();
+	unlock
+	//syncPrintf("jel udje on u new tajmer??\n");
+}
+
+void Karnel::restore(){
+	lock
+	swap(0x08, oldTimer);
+	syncPrintf("Gotovo bajo");
+	unlock
+}
+
+InterruptRoutine Karnel::swap(IVTNo enteryNumber, InterruptRoutine newIntRoutine){
+	InterruptRoutine oldR = 0;
+	lock
+	oldR = getvect(enteryNumber);
+	setvect(enteryNumber, newIntRoutine);
+	unlock
+	return oldR;
+}
+
+void Karnel::dispatch(){
+	lock
+	asm{
+		int 0x08
+	}
+	unlock
+}
+
+void interrupt timer(){
+	if (contextSwitch){
+	asm {
+			// cuva sp i bp
+			mov tsp, sp
+			mov tss, ss
+			mov tbp, bp
+		}
+
+		PCB::running->sp = tsp;
+		PCB::running->ss = tss;
+		PCB::running->bp = tbp;
+
+		if(!PCB::running->finished && !PCB::running->blocked && PCB::running->started && PCB::running!=PCB::loopThread->loopPCB){
+						Scheduler::put((PCB*)PCB::running);
+		}
+
+		PCB::running = Scheduler::get();
+		if (PCB::running == 0){
+			PCB::running = PCB::loopThread->loopPCB;
+		}
+		//syncPrintf("Restoring context!\n");
+			tsp = PCB::running->sp;
+			tss = PCB::running->ss;
+			tbp = PCB::running->bp;
+		#ifndef BCC_BLOCK_IGNORE
+						asm {
+							mov ss, tss
+							mov sp, tsp
+							mov bp, tbp
+						}
+		#endif
+
+						//syncPrintf("Context restored!\n");
+				}
+}
+void interrupt Karnel::newTimer(...){
+	syncPrintf("new tajmer \n??");
+	timer();
+	syncPrintf("U tajmeru je na running postavljena nit %d \n", PCB::running->id);
 }
 
