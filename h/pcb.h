@@ -24,6 +24,7 @@ public:
 	int finished;
 	int blocked;
     int started;
+    int mainFlag;
     //da dodam i running???
 
 	int kvant;
@@ -53,6 +54,8 @@ public:
 	static volatile PCB* running; //trenutna nit
 	//static volatile PCB* mainPCB;
 	//unsigned volatile counter; //globalni counter
+
+	int waitingTime;
 private:
 	static int currentID;
 	int id;
@@ -61,6 +64,8 @@ protected:
 	friend class LoopThread;
 	friend class List;
 	friend class Karnel;
+	friend class KernelSem;
+
 };
 
 

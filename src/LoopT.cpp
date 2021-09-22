@@ -22,7 +22,7 @@ void LoopThread::start(){
 	if (!started){
 	if (!myPCB->started){
 	//	syncPrintf("Loop pokrenut \n ");
-	// PCB::madeThreads->put(this->myPCB);
+		PCB::madeThreads->put(this->myPCB);
 	}
 	myPCB->started = 1;
 	//syncPrintf("uslo u loop start \n ");

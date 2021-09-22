@@ -4,7 +4,7 @@
  *  Created on: Sep 20, 2021
  *      Author: OS1
  */
-/*
+
 #ifndef H_SEMAPHORE_H_
 #define H_SEMAPHORE_H_
 
@@ -21,8 +21,5 @@ public:
 private:
 	KernelSem* myImpl;
 };
-#endif
-
-
 
 #endif /* H_SEMAPHORE_H_ */

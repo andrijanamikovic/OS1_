@@ -14,6 +14,7 @@
 #include "AList.h"
 #include "syPrintf.h"
 #include "karnel.h"
+#include "KernelS.h"
 
 
 int PCB::currentID = 0;
@@ -34,8 +35,9 @@ PCB::PCB(StackSize size, Time time, Thread* thread){
 		}
 			this->timeSlice = time;
 			this->id = currentID++;
-			finished = blocked = started = 0;
+			finished = blocked = started = mainFlag = 0;
 			this->stack = 0;
+			this->waitingTime = 0;
 			waitList = new List();
 			this->stackSize = size / sizeof(unsigned);
 			if (stackSize > maxStackSize) this->stackSize = maxStackSize/sizeof(unsigned);
@@ -60,7 +62,7 @@ void  PCB::initStack(){
 
 void PCB:: waitTocomplete(){
 	lock
-	if (this->finished || this == Karnel::loopThread){ //|| this == running || !this->started || running->blocked || this == Karnel::mainThread->myPCB){
+	if (this->finished || this == Karnel::loopThread || this->mainFlag == 1){ //|| this == running || !this->started || running->blocked || this == Karnel::mainThread->myPCB){
 		unlock
 		return;
 	}

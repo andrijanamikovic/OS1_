@@ -7,6 +7,7 @@
 #include "SCHEDULE.H"
 #include "LoopT.h"
 #include "syPrintf.h"
+//#include "KernelS.h"
 
 volatile unsigned tsp = 0;
 volatile unsigned tss = 0;
@@ -28,9 +29,15 @@ void Karnel::inic(){
 	//PCB::running = mainThread->myPCB;
 	PCB::madeThreads = new List();
 	Karnel::mainThread = new Thread();
+	Karnel::mainThread->myPCB->mainFlag = 1;
+	Karnel::mainThread->myPCB->id = 0;
+	Karnel::mainThread->myPCB->start();
+	//Karnel::mainThread->myPCB->started = 1;
+	PCB::running = mainThread->myPCB;
 	Karnel::loopThread = new LoopThread();
 	Karnel::loopThread->start();
-	PCB::running = Karnel::loopThread->loopPCB;
+
+	//PCB::running = Karnel::loopThread->loopPCB;
 	//asm sti
 
 
@@ -64,6 +71,7 @@ void interrupt Karnel::timer(...){
 		//if (Karnel::count > 0)
 			//Karnel::count--;
 		tick();
+		//KernelSem::update();
 		//if (PCB::running->kvant == 0){
 		if (count > 0) {
 			count--;

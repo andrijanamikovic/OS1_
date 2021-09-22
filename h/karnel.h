@@ -31,6 +31,7 @@ public:
 protected:
 	friend class PCB;
 	friend class Thread;
+	friend class KernelSem;
 };
 
 #endif

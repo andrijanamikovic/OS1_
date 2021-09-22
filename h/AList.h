@@ -21,6 +21,8 @@ protected:
 		};
 	Elem* first, *last;
 	friend class PCB;
+	friend class KernelSem;
+	friend class Semaphore;
 public:
 	List();
 	~List();
