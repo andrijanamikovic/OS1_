@@ -9,6 +9,7 @@
 #include "karnel.h"
 #include "dos.h"
 #include <iostream.h>
+#include "syPrintf.h"
 
 
 

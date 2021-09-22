@@ -6,11 +6,15 @@
 
 class LoopThread: public Thread{
 public:
-	volatile int made;
+	//volatile int made;
 	LoopThread();
-	void run();
 	void start();
 
 	PCB* loopPCB;
+protected:
+	virtual void run();
+private:
+	volatile static int started;
+
 };
 #endif

@@ -13,20 +13,19 @@
 #include "LoopT.h"
 
 //class LoopThread;
-
+const StackSize maxStackSize = 65536;
 class PCB{
 public:
 	unsigned *stack;
 	unsigned bp;
 	unsigned sp;
 	unsigned ss;
+	StackSize size;
 	int finished;
 	int blocked;
     int started;
     //da dodam i running???
 
-
-	int id;
 	int kvant;
 
 	StackSize stackSize;
@@ -35,11 +34,10 @@ public:
 
 
 	static List* madeThreads;
-	static List* waitList;
+	List* waitList;
 	//treba da def i ponasanje flaga rade to ljudi
 
 	PCB(StackSize, Time , Thread*);
-	PCB(Thread* thread); //imaju deaufaltne?
 	~PCB();
 	Thread* getByID(ID id);
 
@@ -48,15 +46,16 @@ public:
 	void waitTocomplete();
 	void start();
 	static void run(); //mozda bez static?
-    void setKvant(int kvant);
     void unblock();
-    void initStack();
+    void  initStack();
 
-    static volatile LoopThread* loopThread;
+   // static volatile LoopThread* loopThread;
 	static volatile PCB* running; //trenutna nit
-	unsigned volatile counter; //globalni counter
+	//static volatile PCB* mainPCB;
+	//unsigned volatile counter; //globalni counter
 private:
 	static int currentID;
+	int id;
 protected:
 	friend class Thread;
 	friend class LoopThread;

@@ -5,7 +5,7 @@
  *      Author: OS1
  */
 
-#include "../h/AList.h"
+#include "AList.h"
 
 #include "karnel.h"
 #include "thread.h"
@@ -20,57 +20,72 @@ List::List(){
 List::~List(){
 	lock
 	Elem *pom;
-	while (first){
+	while (first!=0){
 		pom = first;
 		first = pom->next;
-		delete pom;
+		if (pom!=0)
+			delete pom;
 	}
 	unlock
 }
 
+
 void* List::pop(){
-	if (first ==0) return 0;
+	if (first == 0) return 0;
 	Elem* temp = first;
 	void* data = first->pcb;
 	first = first->next;
-	delete temp;
-	if (first ==0) last = 0;
+	if (temp!=0)
+		delete temp;
+	if (first == 0) last = 0;
 	return data;
 }
 void* List::get(){
-	if (first ==0) return 0;
+	if (first == 0) return 0;
 	else{
 		Elem* temp = first;
 		void* data = first->pcb;
-		delete temp;
+		if (temp!=0)
+			delete temp;
 		return data;
 	}
 }
 
 
 void List::put(void* pcb){
+	lock
+	if (pcb==0) return;
 	Elem* pom = new Elem(pcb);
 	if (first == 0){
 		first = pom;
+		//last = pom;
 	} else {
-		last->next = pom;
+		if (last!=0)
+			last->next = pom;
+		//last = pom;
+
 	}
 	last = pom;
+	unlock
 }
 
 void List::remove(void* pcb){
+	if (pcb==0) return;
+	if (first == 0) return;
 	Elem* temp = first;
 	if (temp->pcb == pcb){
 		first = first->next;
-		delete temp;
+		if (temp!=0)
+			delete temp;
 		return;
 	}
 	Elem* prev = temp;
 	temp = temp->next;
-	while (temp){
+	while (temp!=0){
 		if (temp->pcb == pcb){
 			prev->next = temp->next;
-			delete temp;
+			if (temp!=0)
+				delete temp;
 			return;
 		}
 		prev = temp;

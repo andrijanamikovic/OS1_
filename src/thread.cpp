@@ -20,24 +20,34 @@ Thread::Thread(StackSize stackSize, Time timeSlice){
 }
 
 void Thread::start(){
-  syncPrintf("Thread %d starts\n", myPCB->id);
+  //syncPrintf("Thread %d starts\n", myPCB->id);
   myPCB->start();
 }
 void Thread::waitToComplete(){
+	 //syncPrintf("Thread %d waits\n", myPCB->id);
 	myPCB->waitTocomplete();
 }
 Thread::~Thread(){
-	//this->waitToComplete();
+	if (this->myPCB!=0)
+	this->waitToComplete();
 	//da li imam listu svih niti?
+	lock
+	myPCB->myThread = 0;
+	//syncPrintf("Thread %d delet\n", myPCB->id);
+	myPCB->madeThreads->remove((void*)myPCB);
 	myPCB->waitList->remove((void*)myPCB);
-	delete myPCB;
+	//if (myPCB!=0)
+	//	delete myPCB;
+	unlock
 	//dispatch();
 }
 void dispatch (){
-	asm cli;
-	contextSwitch = 1;
-	asm sti;
-	timer(); //treba li?
+	lock
+	Karnel::contextSwitch = 1;
+	 //syncPrintf("Thread %d dispatch\n", myPCB->id);
+	//PCB::running->finished = 1;
+	Karnel::timer(); //treba li?
+	unlock
 }
 
 ID Thread::getId(){
