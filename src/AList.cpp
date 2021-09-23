@@ -19,12 +19,12 @@ List::List(){
 
 List::~List(){
 	lock
-	Elem *pom;
+	Elem *temp;
 	while (first!=0){
-		pom = first;
-		first = pom->next;
-		if (pom!=0)
-			delete pom;
+		temp = first;
+		first = temp->next;
+		if (temp!=0)
+			delete temp;
 	}
 	unlock
 }

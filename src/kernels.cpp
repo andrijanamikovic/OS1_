@@ -18,6 +18,7 @@ List* KernelSem::blocked = 0;
 KernelSem::KernelSem(int init){
 	lock
 	//allSem = new List();
+	//da li tu treba nesto posto pise da moze biti negativna????
 	blocked = new List();
 	value = init;
 	unlock
@@ -41,7 +42,7 @@ int KernelSem::wait (Time maxTimeToWait){
 			unlock
 			return 1;
 		} else {
-			return value;
+			return 1;
 		}
 	}
 	value--;
@@ -52,8 +53,7 @@ int KernelSem::wait (Time maxTimeToWait){
 
 void KernelSem::signal(){
 	lock
-	int i = 0;
-	if (value++ < 0){
+	if (++value <= 0){
 		unblock();
 	}
 	unlock

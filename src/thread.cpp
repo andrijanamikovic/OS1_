@@ -28,26 +28,18 @@ void Thread::waitToComplete(){
 	myPCB->waitTocomplete();
 }
 Thread::~Thread(){
-	if (this->myPCB!=0)
+	if (this->myPCB!=0){
 	this->waitToComplete();
-	//da li imam listu svih niti?
 	lock
 	myPCB->myThread = 0;
-	//syncPrintf("Thread %d delet\n", myPCB->id);
 	myPCB->madeThreads->remove((void*)myPCB);
 	myPCB->waitList->remove((void*)myPCB);
-	//if (myPCB!=0)
-	//	delete myPCB;
 	unlock
-	//dispatch();
+	}
 }
 void dispatch (){
-	lock
 	Karnel::contextSwitch = 1;
-	 //syncPrintf("Thread %d dispatch\n", myPCB->id);
-	//PCB::running->finished = 1;
-	Karnel::timer(); //treba li?
-	unlock
+	Karnel::timer();
 }
 
 ID Thread::getId(){

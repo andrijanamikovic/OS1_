@@ -7,7 +7,6 @@
 
 //#include "thread.h"
 #include "pcb.h"
-#include <iostream.h>
 #include <dos.h>
 #include "LoopT.h"
 #include "SCHEDULE.H"
@@ -15,7 +14,7 @@
 #include "syPrintf.h"
 #include "karnel.h"
 #include "KernelS.h"
-
+#include "syPrintf.h"
 
 int PCB::currentID = 0;
 volatile PCB *PCB::running = 0;
@@ -33,9 +32,11 @@ PCB::PCB(StackSize size, Time time, Thread* thread){
 		} else {
 			kvant = 0;
 		}
+		//syncPrintf ("U pcb kvant = %d \n", this->kvant);
 			this->timeSlice = time;
+			//syncPrintf ("U pcb timeSlice = %d \n", this->timeSlice);
 			this->id = currentID++;
-			finished = blocked = started = mainFlag = 0;
+			finished = blocked = started = mainFlag = loopFlag =  0;
 			this->stack = 0;
 			this->waitingTime = 0;
 			waitList = new List();
@@ -62,42 +63,45 @@ void  PCB::initStack(){
 
 void PCB:: waitTocomplete(){
 	lock
-	if (this->finished || this == Karnel::loopThread || this->mainFlag == 1){ //|| this == running || !this->started || running->blocked || this == Karnel::mainThread->myPCB){
-		unlock
+	if (this == 0) return;
+	if (this->finished  || this->loopFlag || this->mainFlag || !this->started ){ //|| this == running || !this->started || running->blocked || this == Karnel::mainThread->myPCB){
+		unlock		//ako zabode mozda fali this==running
 		return;
 	}
-		//running->blocked = 1;
+	if (running !=0){
+		if (this == running){
+			unlock
+			return;
+		}
+		running->blocked = 1;
 		if (waitList!=0)
 			waitList->put((void*)running);
-		running->blocked = 1;
-		unlock
-		dispatch();
-
+			unlock
+			dispatch();
+	}
 }
 
 void PCB::start(){
-	 //if (!this) this = new Thread();
 	lock
 	if (this!=0){
 	 if (this->started == 0){
 		 if (this->finished == 0){
-			// syncPrintf("stavljeno u scheduler  %d  \n", id);
 			 Scheduler::put(this);
 		 }
 		 this->started = 1;
+	 }
 	}
-	 //syncPrintf("Thread %d starts\n", id);
-	}
-
 	unlock
 }
 
 PCB::~PCB() {
 	// waitToComplite();
+	lock
 	if (stack!=0)
 		delete[] stack;
 	if (waitList!=0)
 		delete waitList;
+	unlock
 }
 
 void PCB::unblock(){
@@ -120,8 +124,6 @@ void PCB::unblock(){
 }
 
 void PCB::wrapper() {
-	//lock();
-	//syncPrintf("PCB wrapper ??????????? alooo\n");
 	if (running!=0){
 	running->myThread->run();
 	running->finished = 1;
@@ -130,7 +132,6 @@ void PCB::wrapper() {
 	unlock
 	dispatch();
 	}
-	//unlock();
 }
 
 

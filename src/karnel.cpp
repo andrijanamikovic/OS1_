@@ -1,5 +1,4 @@
 
-
 #include "pcb.h"
 #include "karnel.h"
 #include <iostream.h>
@@ -7,42 +6,35 @@
 #include "SCHEDULE.H"
 #include "LoopT.h"
 #include "syPrintf.h"
-//#include "KernelS.h"
+#include "KernelS.h"
 
 volatile unsigned tsp = 0;
 volatile unsigned tss = 0;
 volatile unsigned tbp = 0;
-//volatile int Karnel::forcedDispatch = 0;
+
 volatile int Karnel::contextSwitch = 0;
-volatile int Karnel::count = 0;
+volatile int Karnel::count = 1;
 InterruptRoutine Karnel::oldTimer = 0;
 volatile LoopThread* Karnel::loopThread = 0;
 volatile Thread* Karnel::mainThread = 0;
 extern void tick();
-//volatile unsigned lockFlag = 1;
-//volatile contextSwitch = 0;
-//volatile int count = 20;
+
 void Karnel::inic(){
-	//asm cli
-	//mainThread = new Thread();
-	//mainThread->myPCB->start();
-	//PCB::running = mainThread->myPCB;
 	PCB::madeThreads = new List();
-	Karnel::mainThread = new Thread();
+	Karnel::mainThread = new Thread(500,5);
 	Karnel::mainThread->myPCB->mainFlag = 1;
-	Karnel::mainThread->myPCB->id = 0;
 	Karnel::mainThread->myPCB->start();
-	//Karnel::mainThread->myPCB->started = 1;
-	PCB::running = mainThread->myPCB;
 	Karnel::loopThread = new LoopThread();
-	Karnel::loopThread->start();
+	Karnel::loopThread->loopPCB->loopFlag = 1;
+	Karnel::mainThread->myPCB->started = 1;
+	PCB::madeThreads->put((void*)mainThread->myPCB);
+	PCB::running = mainThread->myPCB;
+
+	PCB::madeThreads->put((void*)loopThread->myPCB);
 
 	//PCB::running = Karnel::loopThread->loopPCB;
 	//asm sti
-
-
-	//PCB::running->myThread = new Thread();
-	//PCB::running->start();
+	count = mainThread->myPCB->kvant;
 
 #ifndef BCC_BLOCK_IGNORE
 	oldTimer = getvect(0x08);
@@ -50,28 +42,23 @@ void Karnel::inic(){
 	setvect(0x08, timer);
 #endif
 
-	//unlock
-
-	//syncPrintf("jel udje on u new tajmer??\n");
 }
 
 void Karnel::restore(){
 	asm cli
 	setvect(0x08, oldTimer);
-	//syncPrintf("Gotovo bajo");
 	delete loopThread;
 	delete mainThread;
 	delete PCB::madeThreads;
 	asm sti
 }
-int flag = 0;
 
 void interrupt Karnel::timer(...){
 	if (!Karnel::contextSwitch){
 		//if (Karnel::count > 0)
 			//Karnel::count--;
 		tick();
-		//KernelSem::update();
+		KernelSem::update();
 		//if (PCB::running->kvant == 0){
 		if (count > 0) {
 			count--;
@@ -88,7 +75,6 @@ void interrupt Karnel::timer(...){
 
 	}
 	if ((Karnel::contextSwitch || count == 0) && PCB::running->kvant!=0 ){
-		//(PCB::running->timeSlice != 0 && PCB::running->kvant== 0)){ //(PCB::running->timeSlice != 0 && Karnel::count == 0)){
 #ifndef BCC_BLOCK_IGNORE
 		asm {
 						// cuva sp i bp
@@ -103,7 +89,7 @@ void interrupt Karnel::timer(...){
 		PCB::running->ss = tss;
 		PCB::running->bp = tbp;
 
-		if(!PCB::running->finished && !PCB::running->blocked && PCB::running!=loopThread->loopPCB){
+		if(!PCB::running->finished && !PCB::running->blocked && PCB::running!=loopThread->loopPCB && PCB::running->started){
 						Scheduler::put((PCB*)PCB::running);
 					//	syncPrintf("tajmer stavljeno u scheduler  %d  \n", PCB::running->id);
 
@@ -113,15 +99,17 @@ void interrupt Karnel::timer(...){
 		PCB::running = Scheduler::get();
 		if (PCB::running == 0){
 			PCB::running = loopThread->loopPCB;
+			PCB::running->loopFlag=1;
 		//	syncPrintf("u tajmeru je loop sp = %d, bp = %d, ss = %d  id = %d \n", PCB::running->ss, PCB::running->sp ,PCB::running->bp, PCB::running->id);
 		}
-		//syncPrintf("Restoring context!\n");
+
 		tsp = PCB::running->sp;
 		tss = PCB::running->ss;
 		tbp = PCB::running->bp;
 
 			//Karnel::count = PCB::running->kvant;
-			count = PCB::running->kvant;
+			count = PCB::running->timeSlice;
+			//count = PCB::running->kvant;
 		#ifndef BCC_BLOCK_IGNORE
 			asm {
 							mov sp, tsp   // restore sp i bp
@@ -132,11 +120,6 @@ void interrupt Karnel::timer(...){
 
 				}
 
-	// OVAJ deo sa flagom je ubacen samo da mi ogranicen broj puta ispise sp,bp i ostatak
-	if (flag < 5){
-	//syncPrintf("u tajmeru sp = %d, bp = %d, ss = %d  id = %d \n", PCB::running->sp, PCB::running->bp ,PCB::running->ss, PCB::running->id);
-	flag++;
-	}
 	//if(!Karnel::contextSwitch) asm int 60h;
 	Karnel::contextSwitch=0;
 }

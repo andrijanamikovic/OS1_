@@ -25,6 +25,7 @@ public:
 	int blocked;
     int started;
     int mainFlag;
+    int loopFlag;
     //da dodam i running???
 
 	int kvant;
@@ -65,6 +66,7 @@ protected:
 	friend class List;
 	friend class Karnel;
 	friend class KernelSem;
+	friend class KernelEv;
 
 };
 
