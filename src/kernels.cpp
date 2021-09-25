@@ -81,6 +81,7 @@ void KernelSem::update(){
 				((PCB*)(temp2->pcb))->waitingTime--;
 				if (((PCB*)(temp2->pcb))->waitingTime==0){
 					((PCB*)(temp2->pcb))->blocked = 0;
+					Karnel::inScheduler++;
 					Scheduler::put(((PCB*)(temp2->pcb)));
 					PCB* del =((PCB*)(temp2->pcb));
 					temp2 = temp2->next;

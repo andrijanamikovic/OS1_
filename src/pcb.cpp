@@ -18,23 +18,14 @@
 
 int PCB::currentID = 0;
 volatile PCB *PCB::running = 0;
-//volatile PCB *PCB::mainPCB = 0;
-//volatile LoopThread* PCB::loopThread = 0;
 List* PCB::madeThreads = 0;
 
 
 
 PCB::PCB(StackSize size, Time time, Thread* thread){
 		lock
-	    myThread = thread;
-		if (time != 0 ){
-			kvant = time;
-		} else {
-			kvant = 0;
-		}
-		//syncPrintf ("U pcb kvant = %d \n", this->kvant);
+			myThread = thread;
 			this->timeSlice = time;
-			//syncPrintf ("U pcb timeSlice = %d \n", this->timeSlice);
 			this->id = currentID++;
 			finished = blocked = started = mainFlag = loopFlag =  0;
 			this->stack = 0;
@@ -58,34 +49,16 @@ void  PCB::initStack(){
 			sp = FP_OFF(stack + this->stackSize - 12);
 			bp = sp;
 #endif
-			//syncPrintf("sp = %d, bp = %d, ss = %d  id = %d \n", sp, bp ,ss, id);
 }
 
-void PCB:: waitTocomplete(){
-	lock
-	if (this == 0) return;
-	if (this->finished  || this->loopFlag || this->mainFlag || !this->started ){ //|| this == running || !this->started || running->blocked || this == Karnel::mainThread->myPCB){
-		unlock		//ako zabode mozda fali this==running
-		return;
-	}
-	if (running !=0){
-		if (this == running){
-			unlock
-			return;
-		}
-		running->blocked = 1;
-		if (waitList!=0)
-			waitList->put((void*)running);
-			unlock
-			dispatch();
-	}
-}
+
 
 void PCB::start(){
 	lock
 	if (this!=0){
 	 if (this->started == 0){
 		 if (this->finished == 0){
+			 Karnel::inScheduler++;
 			 Scheduler::put(this);
 		 }
 		 this->started = 1;
@@ -95,7 +68,6 @@ void PCB::start(){
 }
 
 PCB::~PCB() {
-	// waitToComplite();
 	lock
 	if (stack!=0)
 		delete[] stack;
@@ -111,6 +83,7 @@ void PCB::unblock(){
 		((PCB*)(temp->pcb))->blocked = 0;
 		if (temp->pcb!=0){
 			lock
+			Karnel::inScheduler++;
 			Scheduler::put((PCB*)temp->pcb);
 			unlock
 		}

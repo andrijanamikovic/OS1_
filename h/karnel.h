@@ -15,6 +15,7 @@ extern void tick();
 //static volatile Thread* mainThread;
 class Karnel{
 public:
+	static volatile long inScheduler;
     static void inic();
 	static void restore();
 	static void dispatch();

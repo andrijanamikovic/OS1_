@@ -36,6 +36,7 @@ void KernelEv::signal(){
 		//flag = 0;
 		maker->blocked = 0;
 		ThreadIsBlocked = 0;
+		Karnel::inScheduler++;
 		Scheduler::put((PCB*)maker);
 	}
 	unlock

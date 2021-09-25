@@ -10,7 +10,7 @@
 
 #include "AList.h"
 #include "thread.h"
-#include "LoopT.h"
+
 
 //class LoopThread;
 const StackSize maxStackSize = 65536;
@@ -26,9 +26,7 @@ public:
     int started;
     int mainFlag;
     int loopFlag;
-    //da dodam i running???
 
-	int kvant;
 
 	StackSize stackSize;
 	Time timeSlice;
@@ -37,7 +35,7 @@ public:
 
 	static List* madeThreads;
 	List* waitList;
-	//treba da def i ponasanje flaga rade to ljudi
+
 
 	PCB(StackSize, Time , Thread*);
 	~PCB();
@@ -45,16 +43,12 @@ public:
 
 
     static void wrapper();
-	void waitTocomplete();
 	void start();
-	static void run(); //mozda bez static?
+	static void run();
     void unblock();
     void  initStack();
 
-   // static volatile LoopThread* loopThread;
 	static volatile PCB* running; //trenutna nit
-	//static volatile PCB* mainPCB;
-	//unsigned volatile counter; //globalni counter
 
 	int waitingTime;
 private:

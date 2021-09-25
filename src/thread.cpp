@@ -9,6 +9,7 @@
 #include "pcb.h"
 #include "karnel.h"
 #include "syPrintf.h"
+#include <dos.h>
 
 class Karnel;
 
@@ -20,12 +21,21 @@ Thread::Thread(StackSize stackSize, Time timeSlice){
 }
 
 void Thread::start(){
-  //syncPrintf("Thread %d starts\n", myPCB->id);
   myPCB->start();
 }
 void Thread::waitToComplete(){
-	 //syncPrintf("Thread %d waits\n", myPCB->id);
-	myPCB->waitTocomplete();
+	// syncPrintf("Thread %d waits\n", myPCB->id);
+		//lock
+		if (myPCB == 0 || PCB::running == 0) return;
+		if (myPCB->finished  || myPCB->loopFlag || !myPCB->started || this->myPCB==PCB::running ){ //|| this == running || !this->started || running->blocked || this == Karnel::mainThread->myPCB){
+			//unlock
+			return;
+		}
+			//syncPrintf("Nit sa id = %d blocked = %d, hoce da blokira nit sa id = %d blocked = %d\n a u scheduleru je %d \n", this->myPCB->id,this->myPCB->blocked, PCB::running->id, PCB::running->blocked, Karnel::inScheduler);
+		PCB::running->blocked = 1;
+			if (myPCB->waitList!=0)
+				myPCB->waitList->put((void*)PCB::running);
+		dispatch();
 }
 Thread::~Thread(){
 	if (this->myPCB!=0){
@@ -34,10 +44,13 @@ Thread::~Thread(){
 	myPCB->myThread = 0;
 	myPCB->madeThreads->remove((void*)myPCB);
 	myPCB->waitList->remove((void*)myPCB);
+	delete this->myPCB;
+	myPCB = 0;
 	unlock
 	}
 }
 void dispatch (){
+	//syncPrintf("Thread dispatch \n");
 	Karnel::contextSwitch = 1;
 	Karnel::timer();
 }

@@ -12,19 +12,20 @@
 
 //volatile int LoopThread::started = 0;
 LoopThread::LoopThread():Thread(defaultStackSize,1){
-	Karnel::loopThread->loopPCB = this->myPCB;
+	//Karnel::loopThread->loopPCB = this->myPCB;
+	myPCB->started = 1;
+	myPCB->loopFlag = 1;
 	//LoopThread::started = 1;
 }
 //volatile int LoopThread::made = 0;
 void LoopThread::run(){//syncPrintf("Ran loopa pobratime");
 	volatile int i = 1;
 	while(i>0){
-		i++;
-		i--;
+		i = 2;
 	}
 }
 void LoopThread::start(){
-	if (!loopPCB) return;
-	if (!loopPCB->started)
-		loopPCB->started = 1;
+	if (!myPCB) return;
+	if (!myPCB->started)
+		myPCB->started = 1;
 }

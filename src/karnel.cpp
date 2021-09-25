@@ -12,6 +12,7 @@ volatile unsigned tsp = 0;
 volatile unsigned tss = 0;
 volatile unsigned tbp = 0;
 
+volatile long Karnel::inScheduler = 0;
 volatile int Karnel::contextSwitch = 0;
 volatile int Karnel::count = 1;
 InterruptRoutine Karnel::oldTimer = 0;
@@ -23,18 +24,14 @@ void Karnel::inic(){
 	PCB::madeThreads = new List();
 	Karnel::mainThread = new Thread(500,5);
 	Karnel::mainThread->myPCB->mainFlag = 1;
-	Karnel::mainThread->myPCB->start();
+	Karnel::mainThread->myPCB->started = 1;
 	Karnel::loopThread = new LoopThread();
-	Karnel::loopThread->loopPCB->loopFlag = 1;
+	Karnel::loopThread->myPCB->loopFlag = 1;
 	Karnel::mainThread->myPCB->started = 1;
 	PCB::madeThreads->put((void*)mainThread->myPCB);
 	PCB::running = mainThread->myPCB;
-
 	PCB::madeThreads->put((void*)loopThread->myPCB);
-
-	//PCB::running = Karnel::loopThread->loopPCB;
-	//asm sti
-	count = mainThread->myPCB->kvant;
+	count = mainThread->myPCB->timeSlice;
 
 #ifndef BCC_BLOCK_IGNORE
 	oldTimer = getvect(0x08);
@@ -55,11 +52,8 @@ void Karnel::restore(){
 
 void interrupt Karnel::timer(...){
 	if (!Karnel::contextSwitch){
-		//if (Karnel::count > 0)
-			//Karnel::count--;
 		tick();
 		KernelSem::update();
-		//if (PCB::running->kvant == 0){
 		if (count > 0) {
 			count--;
 			asm int 60h;
@@ -70,11 +64,8 @@ void interrupt Karnel::timer(...){
 			return;
 		}
 
-		/*if (PCB::running->kvant >0)
-			PCB::running->kvant--;*/
-
 	}
-	if ((Karnel::contextSwitch || count == 0) && PCB::running->kvant!=0 ){
+	if (Karnel::contextSwitch || (count == 0 && PCB::running->timeSlice!=0 )){
 #ifndef BCC_BLOCK_IGNORE
 		asm {
 						// cuva sp i bp
@@ -89,8 +80,9 @@ void interrupt Karnel::timer(...){
 		PCB::running->ss = tss;
 		PCB::running->bp = tbp;
 
-		if(!PCB::running->finished && !PCB::running->blocked && PCB::running!=loopThread->loopPCB && PCB::running->started){
+		if(!PCB::running->finished && !PCB::running->blocked && !PCB::running->loopFlag && PCB::running->started){
 						Scheduler::put((PCB*)PCB::running);
+						Karnel::inScheduler++;
 					//	syncPrintf("tajmer stavljeno u scheduler  %d  \n", PCB::running->id);
 
 		}
@@ -98,9 +90,11 @@ void interrupt Karnel::timer(...){
 
 		PCB::running = Scheduler::get();
 		if (PCB::running == 0){
-			PCB::running = loopThread->loopPCB;
-			PCB::running->loopFlag=1;
+			PCB::running = loopThread->myPCB;
+			//PCB::running->loopFlag=1;
 		//	syncPrintf("u tajmeru je loop sp = %d, bp = %d, ss = %d  id = %d \n", PCB::running->ss, PCB::running->sp ,PCB::running->bp, PCB::running->id);
+		} else {
+			Karnel::inScheduler--;
 		}
 
 		tsp = PCB::running->sp;
@@ -119,7 +113,7 @@ void interrupt Karnel::timer(...){
 		#endif
 
 				}
-
+	//syncPrintf("U tajmeru je running podesen na %d \n", PCB::running->id);
 	//if(!Karnel::contextSwitch) asm int 60h;
 	Karnel::contextSwitch=0;
 }
