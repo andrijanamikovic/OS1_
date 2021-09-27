@@ -7,7 +7,7 @@
 
 #include "AList.h"
 
-#include "karnel.h"
+#include "../h/kernel.h"
 #include "thread.h"
 #include "SCHEDULE.H"
 #include "pcb.h"
@@ -16,6 +16,7 @@ List::List(){
 	lock
 	first = 0;
 	last = 0;
+	size = 0;
 	unlock
 }
 
@@ -40,6 +41,7 @@ void* List::pop(){
 	if (temp!=0)
 		delete temp;
 	if (first == 0) last = 0;
+	size--;
 	return data;
 }
 void* List::get(){
@@ -68,6 +70,7 @@ void List::put(void* pcb){
 
 	}
 	last = pom;
+	size++;
 	unlock
 }
 
@@ -79,6 +82,7 @@ void List::remove(void* pcb){
 		first = first->next;
 		if (temp!=0)
 			delete temp;
+		size--;
 		return;
 	}
 	Elem* prev = temp;
@@ -88,6 +92,7 @@ void List::remove(void* pcb){
 			prev->next = temp->next;
 			if (temp!=0)
 				delete temp;
+			size--;
 			return;
 		}
 		prev = temp;

@@ -8,10 +8,11 @@
 #include "IVTEntry.h"
 #include "KernelE.h"
 #include <dos.h>
-#include "karnel.h"
+
+#include "../h/kernel.h"
 //KernelEv* IVEntery::events[256] = 0;
-KernelEv* IVEntry::events[256] = {0};
-IVEntry::IVEntry(IVTNo ivtNo, InterruptRoutine newRoutine){
+KernelEv* IVTEntry::events[256] = {0};
+IVTEntry::IVTEntry(IVTNo ivtNo, InterruptRoutine newRoutine){
 	lock
 	this->ent=ivtNo;
 	this->event = 0;
@@ -21,22 +22,23 @@ IVEntry::IVEntry(IVTNo ivtNo, InterruptRoutine newRoutine){
 #endif
 	unlock
 }
-IVEntry::~IVEntry(){
+IVTEntry::~IVTEntry(){
 	lock
 #ifndef BCC_BLOCK_IGNORE
 	setvect(ent, oldRoutine);
 #endif
 	unlock
 }
-void IVEntry::signal(){
+void IVTEntry::signal(){
 	if (events[ent] != 0)
 		events[ent]->signal();
 }
 
-IVTNo IVEntry::getNo(){
+IVTNo IVTEntry::getNo(){
 	return ent;
 }
 
-void IVEntry::callOldRoutine(){
+
+void IVTEntry::callOldRoutine(){
 	oldRoutine();
 }

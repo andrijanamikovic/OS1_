@@ -6,9 +6,10 @@
  */
 
 #include "LoopT.h"
+
+#include "../h/kernel.h"
 #include "pcb.h"
 #include "syPrintf.h"
-#include "karnel.h"
 
 //volatile int LoopThread::started = 0;
 LoopThread::LoopThread():Thread(defaultStackSize,1){

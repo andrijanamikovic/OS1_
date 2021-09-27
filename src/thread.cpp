@@ -7,9 +7,9 @@
 
 #include "thread.h"
 #include "pcb.h"
-#include "karnel.h"
 #include "syPrintf.h"
 #include <dos.h>
+#include "../h/kernel.h"
 
 class Karnel;
 

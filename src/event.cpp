@@ -7,7 +7,8 @@
 
 
 #include "event.h"
-#include "karnel.h"
+
+#include "../h/kernel.h"
 #include "KernelE.h"
 
 Event::Event (IVTNo ivtNo){

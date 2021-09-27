@@ -7,8 +7,9 @@
 
 
 #include "semaphor.h"
+
+#include "../h/kernel.h"
 #include "KernelS.h"
-#include "karnel.h"
 
 Semaphore::Semaphore(int init){
 	lock

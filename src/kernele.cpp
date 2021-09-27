@@ -6,8 +6,8 @@
  */
 
 
+#include "../h/kernel.h"
 #include "KernelE.h"
-#include "karnel.h"
 #include "pcb.h"
 #include "IVTEntry.h"
 #include "SCHEDULE.H"
@@ -19,13 +19,13 @@ KernelEv::KernelEv(IVTNo ivtNo){
 	maker = PCB::running;
 	ThreadIsBlocked = 0;
 	this->ivtNo = ivtNo;
-	IVEntry::events[ivtNo] = this;
+	IVTEntry::events[ivtNo] = this;
 	unlock
 }
 
 KernelEv::~KernelEv(){
 	lock
-	IVEntry::events[ivtNo] = 0;
+	IVTEntry::events[ivtNo] = 0;
 	unlock
 }
 void KernelEv::signal(){
@@ -42,6 +42,7 @@ void KernelEv::signal(){
 	unlock
 }
 void KernelEv::wait(){	//mozda ti tu treba lock i unlock
+	lock
 	if (maker!=PCB::running) return;
 		if (flag)
 			flag = 0;
@@ -50,5 +51,6 @@ void KernelEv::wait(){	//mozda ti tu treba lock i unlock
 			PCB::running->blocked = 1;
 			dispatch();
 		}
+	unlock
 }
 

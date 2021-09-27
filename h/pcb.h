@@ -28,7 +28,7 @@ public:
     int loopFlag;
 
     int deblocked;
-    int waitingSemaphore;
+    int NotwaitingSemaphore;
 
 	StackSize stackSize;
 	Time timeSlice;

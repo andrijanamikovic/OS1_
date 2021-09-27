@@ -8,11 +8,12 @@
 //#include "thread.h"
 #include "pcb.h"
 #include <dos.h>
+
+#include "../h/kernel.h"
 #include "LoopT.h"
 #include "SCHEDULE.H"
 #include "AList.h"
 #include "syPrintf.h"
-#include "karnel.h"
 #include "KernelS.h"
 #include "syPrintf.h"
 
@@ -27,7 +28,7 @@ PCB::PCB(StackSize size, Time time, Thread* thread){
 			myThread = thread;
 			this->timeSlice = time;
 			this->id = currentID++;
-			finished = blocked = started = mainFlag = loopFlag =  deblocked = waitingSemaphore = 0;
+			finished = blocked = started = mainFlag = loopFlag =  deblocked = NotwaitingSemaphore = 0;
 			this->stack = 0;
 			this->waitingTime = 0;
 			waitList = new List();

@@ -6,9 +6,10 @@
  */
 
 #include "pcb.h"
-#include "karnel.h"
 #include "dos.h"
 #include <iostream.h>
+
+#include "../h/kernel.h"
 #include "syPrintf.h"
 
 

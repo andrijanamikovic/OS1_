@@ -12,15 +12,16 @@
 
 typedef void interrupt (*InterruptRoutine)(...);
 
-class IVEntry{
+class IVTEntry{
 public:
 	static KernelEv* events[256];
-	IVEntry(IVTNo ivtNo, InterruptRoutine newRoutine);
-	~IVEntry();
+	IVTEntry(IVTNo ivtNo, InterruptRoutine newRoutine);
+	~IVTEntry();
 	void signal();
 	IVTNo getNo();
 	InterruptRoutine oldRoutine;
 	void callOldRoutine();
+	//IVTEntry* getEntry(IVTNo ivtNo);
 protected:
 	friend class KernelEv;
 private:

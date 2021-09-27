@@ -14,6 +14,7 @@ public:
 	Event (IVTNo ivtNo);
 	~Event ();
 	void wait ();
+
 protected:
 	friend class KernelEv;
 	void signal(); // can call KernelEv
@@ -21,14 +22,19 @@ private:
 	KernelEv* myImpl;
 };
 
-#define PREPAREENTRY(num, callBack) \
-void interrupt Routine##num(...); \
-IVTEntry Entry##num(num, Routine##num); \
-void interrupt Routine##num(...) { \
-	Entry##num.signal(); \
-	if(callBack==1) \
-	Entry##num.callOldRoutine(); \
+#include "IVTEntry.h"
+
+#define PREPAREENTRY(numEntry, callOld)\
+void interrupt inter##numEntry(...);\
+IVTEntry newEntry##numEntry(numEntry, inter##numEntry);\
+void interrupt inter##numEntry(...) {\
+	newEntry##numEntry.signal();\
+	if (callOld)\
+		newEntry##numEntry.callOldRoutine();\
 }
 
 #endif /* H_EVENT_H_ */
+
+
+
 

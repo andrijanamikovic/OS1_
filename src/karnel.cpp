@@ -1,8 +1,9 @@
 
 #include "pcb.h"
-#include "karnel.h"
 #include <iostream.h>
 #include <dos.h>
+
+#include "../h/kernel.h"
 #include "SCHEDULE.H"
 #include "LoopT.h"
 #include "syPrintf.h"
