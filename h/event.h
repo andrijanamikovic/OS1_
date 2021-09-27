@@ -21,7 +21,14 @@ private:
 	KernelEv* myImpl;
 };
 
-#include "IVTEntry.h"
+#define PREPAREENTRY(num, callBack) \
+void interrupt Routine##num(...); \
+IVTEntry Entry##num(num, Routine##num); \
+void interrupt Routine##num(...) { \
+	Entry##num.signal(); \
+	if(callBack==1) \
+	Entry##num.callOldRoutine(); \
+}
 
 #endif /* H_EVENT_H_ */
 

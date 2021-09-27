@@ -10,22 +10,23 @@
 #include "pcb.h"
 #include "AList.h"
 #include "SCHEDULE.H"
-
+#include "syPrintf.h"
 
 volatile  List* KernelSem::allSem = 0;
-List* KernelSem::blocked = 0;
 
 KernelSem::KernelSem(int init){
 	lock
-	//allSem = new List();
-	//da li tu treba nesto posto pise da moze biti negativna????
-	blocked = new List();
+	Listblocked = new List();
 	value = init;
+	n = 0;
 	unlock
 }
 KernelSem::~KernelSem(){
 	lock
-	delete[] blocked;
+	allSem->remove((void*)this);
+	Listblocked->unblock();
+	delete Listblocked;
+	value = 0;
 	unlock
 }
 
@@ -35,61 +36,82 @@ int  KernelSem::val () const{
 
 int KernelSem::wait (Time maxTimeToWait){
 	lock
-	if (--value<0){
-		if (maxTimeToWait!=0){
-			PCB::running->waitingTime = maxTimeToWait;
-			block();
+		value--;
+			if (value<0){
+					PCB::running->waitingTime = maxTimeToWait;
+					block();
+					dispatch();
+					if ( PCB::running->waitingSemaphore == 1 && PCB::running->waitingTime == 0){
+						unlock
+						return 0;
+					}
+				}
+			PCB::running->waitingTime = 0;
 			unlock
 			return 1;
-		} else {
-			return 1;
-		}
-	}
-	value--;
-	unlock
-	return 0;
-
 }
 
 void KernelSem::signal(){
 	lock
-	if (++value <= 0){
-		unblock();
-	}
+	int i = 0;
+		if (++value <= 0){
+			//i= -1 * value;
+			//for (int j =0; j<i; j++)
+				unblock();
+		}
 	unlock
 }
 
 void KernelSem::block(){
 	PCB::running->blocked = 1;
-	if (blocked!=0)
-		blocked->put((void*)PCB::running);
+	if (Listblocked!=0)
+		Listblocked->put((void*)PCB::running);
+	n++;
 	dispatch();
 }
 
 void KernelSem::unblock(){
-	PCB* temp =(PCB*)blocked->pop();
-	temp->blocked = 0;
-	Scheduler::put(temp);
+	PCB* temp =(PCB*)Listblocked->pop();
+	if (temp!=0 && !temp->loopFlag){
+		temp->blocked = 0;
+		temp->deblocked = 1;
+		Karnel::inScheduler++;
+		n--;
+		Scheduler::put(temp);
+	}
 }
 
 void KernelSem::update(){
+	if (allSem == 0) return;
 	List::Elem* temp = allSem->first;
-	while (temp){
-		List::Elem* temp2 =((KernelSem*)(temp->pcb))->blocked->first;
-		while (temp2){
-			if (((PCB*)(temp2->pcb))->waitingTime!=0){
-				((PCB*)(temp2->pcb))->waitingTime--;
-				if (((PCB*)(temp2->pcb))->waitingTime==0){
-					((PCB*)(temp2->pcb))->blocked = 0;
-					Karnel::inScheduler++;
-					Scheduler::put(((PCB*)(temp2->pcb)));
-					PCB* del =((PCB*)(temp2->pcb));
-					temp2 = temp2->next;
-					((KernelSem*)(temp->pcb))->blocked->remove((void*)(del));
-				}
-			}
-			temp2 = temp2->next;
-		}
+	while (temp!=0){
+		((KernelSem*)(temp->pcb))->updateSemaphore();
 		temp = temp->next;
 	}
+}
+
+void KernelSem::updateSemaphore(){
+		List::Elem* temp2 =this->Listblocked->first;
+		while (temp2 != 0){
+			if (((PCB*)(temp2->pcb))->waitingSemaphore){
+				((PCB*)(temp2->pcb))->waitingTime--;
+				if (((PCB*)(temp2->pcb))->waitingTime==0){
+					//if (!((PCB*)(temp2->pcb))->loopFlag){
+						((PCB*)(temp2->pcb))->blocked = 0;
+						((PCB*)(temp2->pcb))->deblocked = 1;
+						//((KernelSem*)(temp->pcb))->n--;
+						//syncPrintf("Deblokirao sam niti iz liste cekanja semafora \n");
+						Karnel::inScheduler++;
+						Scheduler::put(((PCB*)(temp2->pcb)));
+					PCB* del =((PCB*)(temp2->pcb));
+					this->Listblocked->remove((void*)(del));}
+				temp2 = temp2->next;
+					//syncPrintf("Deblokirao sam jednu niti iz liste cekanja semafora \n");
+				}// else {
+					//temp2 = temp2->next;
+				//syncPrintf("Usao sam da Deblokiram niti iz liste cekanja semafora \n");
+			//}
+			temp2 = temp2->next;
+	}
+
 }

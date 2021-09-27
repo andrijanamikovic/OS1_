@@ -91,8 +91,9 @@ void interrupt Karnel::timer(...){
 		PCB::running = Scheduler::get();
 		if (PCB::running == 0){
 			PCB::running = loopThread->myPCB;
+			//syncPrintf("U tajmeru je inSch = %d \n", Karnel::inScheduler);
 			//PCB::running->loopFlag=1;
-		//	syncPrintf("u tajmeru je loop sp = %d, bp = %d, ss = %d  id = %d \n", PCB::running->ss, PCB::running->sp ,PCB::running->bp, PCB::running->id);
+		//syncPrintf("u tajmeru je loop sp = %d, bp = %d, ss = %d  id = %d \n", PCB::running->ss, PCB::running->sp ,PCB::running->bp, PCB::running->id);
 		} else {
 			Karnel::inScheduler--;
 		}
@@ -113,7 +114,7 @@ void interrupt Karnel::timer(...){
 		#endif
 
 				}
-	//syncPrintf("U tajmeru je running podesen na %d \n", PCB::running->id);
+	//syncPrintf("U tajmeru je running podesen na %d a inScheduler = %d \n", PCB::running->id, Karnel::inScheduler);
 	//if(!Karnel::contextSwitch) asm int 60h;
 	Karnel::contextSwitch=0;
 }

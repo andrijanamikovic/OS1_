@@ -30,6 +30,7 @@ public:
 	void* pop(); //uklanja prvi i vraca ga
 	void put(void* pcb);
 	void remove(void* pcb);
+	void unblock();
 };
 
 #endif

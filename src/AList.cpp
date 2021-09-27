@@ -9,6 +9,8 @@
 
 #include "karnel.h"
 #include "thread.h"
+#include "SCHEDULE.H"
+#include "pcb.h"
 
 List::List(){
 	lock
@@ -91,6 +93,26 @@ void List::remove(void* pcb){
 		prev = temp;
 		temp = temp->next;
 	}
+}
+
+void List::unblock(){
+	List::Elem* temp = first;
+		List::Elem* del = first;
+		while (temp!=0){
+			((PCB*)(temp->pcb))->blocked = 0;
+			if (temp->pcb!=0){
+				lock
+				Karnel::inScheduler++;
+				Scheduler::put((PCB*)temp->pcb);
+				unlock
+			}
+			del = temp;
+			temp = temp->next;
+			if (del!=0)
+				delete del;
+		}
+		first = 0;
+		last = 0;
 }
 
 

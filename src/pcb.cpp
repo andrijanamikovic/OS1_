@@ -27,7 +27,7 @@ PCB::PCB(StackSize size, Time time, Thread* thread){
 			myThread = thread;
 			this->timeSlice = time;
 			this->id = currentID++;
-			finished = blocked = started = mainFlag = loopFlag =  0;
+			finished = blocked = started = mainFlag = loopFlag =  deblocked = waitingSemaphore = 0;
 			this->stack = 0;
 			this->waitingTime = 0;
 			waitList = new List();
@@ -77,23 +77,7 @@ PCB::~PCB() {
 }
 
 void PCB::unblock(){
-	List::Elem* temp = waitList->first;
-	List::Elem* del = waitList->first;
-	while (temp!=0){
-		((PCB*)(temp->pcb))->blocked = 0;
-		if (temp->pcb!=0){
-			lock
-			Karnel::inScheduler++;
-			Scheduler::put((PCB*)temp->pcb);
-			unlock
-		}
-		del = temp;
-		temp = temp->next;
-		if (del!=0)
-			delete del;
-	}
-	waitList->first = 0;
-	waitList->last = 0;
+	waitList->unblock();
 }
 
 void PCB::wrapper() {

@@ -20,16 +20,17 @@ public:
 	int val () const;
 
 	volatile static List* allSem;
-	static  List* blocked;
+	List* Listblocked;
 	void block();
 	void unblock();
 	static void update();
+	void updateSemaphore();
 protected:
 	friend class Semaphore;
 	friend class List;
 private:
 	int value;
-
+	int n;
 
 };
 
