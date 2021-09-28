@@ -14,7 +14,7 @@
 Semaphore::Semaphore(int init){
 	lock
 	myImpl = new KernelSem(init);
-	KernelSem::allSem->put((void*)myImpl);
+	//KernelSem::allSem->put((void*)myImpl);
 	unlock
 
 }

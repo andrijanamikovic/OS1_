@@ -16,7 +16,6 @@ class Karnel;
 Thread::Thread(StackSize stackSize, Time timeSlice){
 	lock
 	myPCB = new PCB(stackSize, timeSlice,this);
-	//ubacim ovde u listu PCBa?
 	unlock
 }
 
@@ -31,7 +30,6 @@ void Thread::waitToComplete(){
 			//unlock
 			return;
 		}
-			//syncPrintf("Nit sa id = %d blocked = %d, hoce da blokira nit sa id = %d blocked = %d\n a u scheduleru je %d \n", this->myPCB->id,this->myPCB->blocked, PCB::running->id, PCB::running->blocked, Karnel::inScheduler);
 		PCB::running->blocked = 1;
 			if (myPCB->waitList!=0)
 				myPCB->waitList->put((void*)PCB::running);
@@ -50,7 +48,6 @@ Thread::~Thread(){
 	}
 }
 void dispatch (){
-	//syncPrintf("Thread dispatch \n");
 	Karnel::contextSwitch = 1;
 	Karnel::timer();
 }

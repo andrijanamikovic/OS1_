@@ -25,6 +25,10 @@ KernelEv::KernelEv(IVTNo ivtNo){
 
 KernelEv::~KernelEv(){
 	lock
+	if (ThreadIsBlocked){
+		maker->blocked = 0;
+		Scheduler::put((PCB*)maker);
+	}
 	IVTEntry::events[ivtNo] = 0;
 	unlock
 }
@@ -43,10 +47,17 @@ void KernelEv::signal(){
 }
 void KernelEv::wait(){	//mozda ti tu treba lock i unlock
 	lock
-	if (maker!=PCB::running) return;
+	if (maker!=PCB::running){
+		unlock
+		return;
+	}
 		if (flag)
 			flag = 0;
 		else {
+			if (PCB::running->mainFlag){
+				unlock
+				return;
+			}
 			ThreadIsBlocked = 1;
 			PCB::running->blocked = 1;
 			dispatch();

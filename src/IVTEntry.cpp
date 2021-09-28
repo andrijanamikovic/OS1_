@@ -40,5 +40,7 @@ IVTNo IVTEntry::getNo(){
 
 
 void IVTEntry::callOldRoutine(){
+	lock
 	oldRoutine();
+	unlock
 }

@@ -22,10 +22,12 @@ Event::~Event (){
 }
 
 void Event::wait(){
+	if (myImpl == 0) return;
 	myImpl->wait();
 }
 
 void Event::signal(){
+	if (myImpl == 0) return;
 	myImpl->signal();
 }
 

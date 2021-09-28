@@ -19,6 +19,7 @@ KernelSem::KernelSem(int init){
 	Listblocked = new List();
 	value = init;
 	n = 0;
+	allSem->put(this);
 	unlock
 }
 KernelSem::~KernelSem(){
@@ -92,18 +93,10 @@ void KernelSem::unblock(){
 void KernelSem::update(){
 	if (allSem == 0) return;
 	List::Elem* temp = allSem->first;
-	//syncPrintf("Ne ulazi u while u karnel updatu");
 	while (temp!=0){
-		//syncPrintf("Deblokiranje 1");
 		((KernelSem*)(temp->pcb))->updateSemaphore();
 		temp = temp->next;
-		//syncPrintf("%d sledeci tempa", temp);
 	}
-	/*if (temp == 0){
-	//	syncPrintf("Nema vise semafora");
-		allSem = 0;
-		//dispatch();
-	}*/
 }
 
 void KernelSem::updateSemaphore(){
@@ -111,27 +104,20 @@ void KernelSem::updateSemaphore(){
 		while (temp2 != 0){
 
 			if (!((PCB*)(temp2->pcb))->NotwaitingSemaphore){
-				//syncPrintf("Deblokiranje 2");
 				((PCB*)(temp2->pcb))->waitingTime--;
-				if (((PCB*)(temp2->pcb))->waitingTime==1){
-					//if (!((PCB*)(temp2->pcb))->loopFlag){
+				if (((PCB*)(temp2->pcb))->waitingTime==0){
 						((PCB*)(temp2->pcb))->blocked = 0;
 						((PCB*)(temp2->pcb))->deblocked = 1;
-						//((KernelSem*)(temp->pcb))->n--;
-						//syncPrintf("Deblokirao sam niti iz liste cekanja semafora \n");
 						Karnel::inScheduler++;
 						Scheduler::put(((PCB*)(temp2->pcb)));
 						this->value++;
 					PCB* del =((PCB*)(temp2->pcb));
 					temp2 = temp2->next;
-					//syncPrintf("Size pre remove %d", this->Listblocked->size);
 					this->Listblocked->remove((void*)(del));
-					//syncPrintf("Size posle remove %d", this->Listblocked->size);
 				}
-				else
-					temp2 = temp2->next;
-				//syncPrintf("Usao sam da Deblokiram niti iz liste cekanja semafora \n");
-		} //else??
+			//	else
+				//	temp2 = temp2->next;
+		}
 			temp2 = temp2->next;
 	}
 		if (this->Listblocked->size == 0){
