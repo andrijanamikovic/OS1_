@@ -27,7 +27,7 @@ PCB::PCB(StackSize size, Time time, Thread* thread){
 			myThread = thread;
 			this->timeSlice = time;
 			this->id = currentID++;
-			finished = blocked = started = mainFlag = loopFlag =  deblocked = NotwaitingSemaphore = 0;
+			finished = blocked = started = mainFlag = loopFlag  = NotwaitingSemaphore = 0;
 			this->stack = 0;
 			this->waitingTime = 0;
 			waitList = new List();
@@ -58,7 +58,6 @@ void PCB::start(){
 	if (this!=0){
 	 if (this->started == 0){
 		 if (this->finished == 0){
-			 Karnel::inScheduler++;
 			 Scheduler::put(this);
 		 }
 		 this->started = 1;
@@ -84,9 +83,7 @@ void PCB::wrapper() {
 	if (running!=0){
 	running->myThread->run();
 	running->finished = 1;
-	lock
 	PCB::running->myThread->myPCB->unblock();
-	unlock
 	dispatch();
 	}
 }

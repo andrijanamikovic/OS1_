@@ -17,9 +17,9 @@
 int userMain(int, char**);
 
 int main(int argc, char** argv){
-	Karnel::inic();
+	Kernel::inic();
 	int ret = userMain(argc, argv);
-	Karnel::restore();
+	Kernel::restore();
 	return ret;
 }
 

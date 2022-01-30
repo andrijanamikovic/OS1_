@@ -1,5 +1,5 @@
-#ifndef _karnel_h_
-#define _karnel_h_
+#ifndef _Kernel_h_
+#define _Kernel_h_
 
 #define lock {asm{pushf; cli;}}
 #define unlock {asm popf;}
@@ -13,9 +13,8 @@ typedef void interrupt (*InterruptRoutine)(...);
 
 extern void tick();
 //static volatile Thread* mainThread;
-class Karnel{
+class Kernel{
 public:
-	static volatile long inScheduler; //ne koristim to
     static void inic();
 	static void restore();
 	static void dispatch();

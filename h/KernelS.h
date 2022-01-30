@@ -30,8 +30,6 @@ protected:
 	friend class List;
 private:
 	int value;
-	int n;
-
 };
 
 

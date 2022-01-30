@@ -105,7 +105,6 @@ void List::unblock(){
 			((PCB*)(temp->pcb))->blocked = 0;
 			if (temp->pcb!=0){
 				lock
-				Karnel::inScheduler++;
 				Scheduler::put((PCB*)temp->pcb);
 				unlock
 			}

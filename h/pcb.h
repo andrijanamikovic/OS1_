@@ -26,8 +26,6 @@ public:
     int started;
     int mainFlag;
     int loopFlag;
-
-    int deblocked;
     int NotwaitingSemaphore;
 
 	StackSize stackSize;
@@ -60,7 +58,7 @@ protected:
 	friend class Thread;
 	friend class LoopThread;
 	friend class List;
-	friend class Karnel;
+	friend class Kernel;
 	friend class KernelSem;
 	friend class KernelEv;
 

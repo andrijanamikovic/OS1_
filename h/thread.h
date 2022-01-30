@@ -31,7 +31,7 @@ class Thread {
 		Thread (StackSize stackSize = defaultStackSize, Time timeSlice = defaultTimeSlice);
 		virtual void run() {}
 		friend class LoopThread;
-		friend class Karnel;
+		friend class Kernel;
 
 	private:
 		PCB* myPCB;
