@@ -13,9 +13,8 @@
 #include "LoopT.h"
 #include "SCHEDULE.H"
 #include "AList.h"
-#include "syPrintf.h"
 #include "KernelS.h"
-#include "syPrintf.h"
+
 
 int PCB::currentID = 0;
 volatile PCB *PCB::running = 0;

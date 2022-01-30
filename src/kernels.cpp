@@ -42,11 +42,14 @@ int KernelSem::wait (Time maxTimeToWait){
 					PCB::running->waitingTime = maxTimeToWait;
 					if (maxTimeToWait == 0){
 						 PCB::running->NotwaitingSemaphore = 1;
+					} else {
+						PCB::running->NotwaitingSemaphore = 0;
 					}
 					block();
 					//dispatch();
 					if ( PCB::running->NotwaitingSemaphore == 0 && PCB::running->waitingTime == 0){
-						PCB::running->NotwaitingSemaphore = 1;
+//						PCB::running->NotwaitingSemaphore = 1;
+						//syncPrintf("Khme pre ifa %d, %d : \n", ((PCB*)(running->pcb))->id,PCB::running->waitingTime);
 						unlock
 						return 0;
 					}
@@ -80,6 +83,7 @@ void KernelSem::block(){
 }
 
 void KernelSem::unblock(){
+	lock
 	PCB* temp =(PCB*)Listblocked->pop();
 	if (temp!=0 && !temp->loopFlag){
 		temp->blocked = 0;
@@ -88,41 +92,52 @@ void KernelSem::unblock(){
 		n--;
 		Scheduler::put(temp);
 	}
+	unlock
 }
 
 void KernelSem::update(){
+	lock
 	if (allSem == 0) return;
 	List::Elem* temp = allSem->first;
 	while (temp!=0){
 		((KernelSem*)(temp->pcb))->updateSemaphore();
 		temp = temp->next;
 	}
+	unlock
 }
 
 void KernelSem::updateSemaphore(){
 		List::Elem* temp2 =this->Listblocked->first;
 		while (temp2 != 0){
 
+			//syncPrintf("Khme while : \n");
+
 			if (!((PCB*)(temp2->pcb))->NotwaitingSemaphore){
-				((PCB*)(temp2->pcb))->waitingTime--;
+				//if (((PCB*)(temp2->pcb))->waitingTime>0)
+					((PCB*)(temp2->pcb))->waitingTime--;
+
+	//			syncPrintf("Khme pre ifa %d, %d : \n", ((PCB*)(temp2->pcb))->id,((PCB*)(temp2->pcb))->waitingTime);
 				if (((PCB*)(temp2->pcb))->waitingTime==0){
 						((PCB*)(temp2->pcb))->blocked = 0;
 						((PCB*)(temp2->pcb))->deblocked = 1;
+//						syncPrintf("Khme scheduler : \n");
 						Karnel::inScheduler++;
 						Scheduler::put(((PCB*)(temp2->pcb)));
 						this->value++;
+
 					PCB* del =((PCB*)(temp2->pcb));
-					temp2 = temp2->next;
+				//	temp2 = temp2->next; //isto? sa ili bez nema mnogo smisla???
 					this->Listblocked->remove((void*)(del));
 				}
-			//	else
-				//	temp2 = temp2->next;
-		}
+				//else
+			//		temp2 = temp2->next;
+		} //else
+
 			temp2 = temp2->next;
 	}
-		if (this->Listblocked->size == 0){
-				this->Listblocked = 0;
-				Karnel::contextSwitch = 1;
+		if (this->Listblocked->countSize() == 0){
+//				this->Listblocked = 0;
+			//	Karnel::contextSwitch = 1;
 				//this->allSem->size--;
 				//syncPrintf("Ispraznjena lista");
 			}

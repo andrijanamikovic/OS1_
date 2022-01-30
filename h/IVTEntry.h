@@ -14,12 +14,13 @@ typedef void interrupt (*InterruptRoutine)(...);
 
 class IVTEntry{
 public:
-	static KernelEv* events[256];
+	static IVTEntry* IVT[256];
 	IVTEntry(IVTNo ivtNo, InterruptRoutine newRoutine);
 	~IVTEntry();
 	void signal();
 	IVTNo getNo();
 	InterruptRoutine oldRoutine;
+	static IVTEntry* get(IVTNo ivtNo);
 	void callOldRoutine();
 	//IVTEntry* getEntry(IVTNo ivtNo);
 protected:
@@ -27,7 +28,6 @@ protected:
 private:
 	IVTNo ent;
 	KernelEv* event;
-	friend class KernelEv;
 	//void callOld();
 };
 

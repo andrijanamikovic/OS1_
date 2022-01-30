@@ -15,14 +15,14 @@ extern void tick();
 //static volatile Thread* mainThread;
 class Karnel{
 public:
-	static volatile long inScheduler;
+	static volatile long inScheduler; //ne koristim to
     static void inic();
 	static void restore();
 	static void dispatch();
 	static void interrupt timer(...);
 	static InterruptRoutine oldTimer;
 	//static volatile int forcedDispatch;
-	static volatile int count;
+	static volatile int count; //msm da ni to
 	static volatile int contextSwitch;
 
 	//volatile unsigned lockFlag = 1;

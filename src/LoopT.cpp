@@ -9,7 +9,7 @@
 
 #include "../h/kernel.h"
 #include "pcb.h"
-#include "syPrintf.h"
+
 
 LoopThread::LoopThread():Thread(defaultStackSize,1){
 	myPCB->started = 1;

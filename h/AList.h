@@ -32,6 +32,7 @@ public:
 	void remove(void* pcb);
 	void unblock();
 	int size;
+	int countSize();
 };
 
 #endif

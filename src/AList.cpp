@@ -49,8 +49,7 @@ void* List::get(){
 	else{
 		Elem* temp = first;
 		void* data = first->pcb;
-		if (temp!=0)
-			delete temp;
+		//first = first->next;
 		return data;
 	}
 }
@@ -90,9 +89,8 @@ void List::remove(void* pcb){
 	while (temp!=0){
 		if (temp->pcb == pcb){
 			prev->next = temp->next;
-			if (temp!=0)
-				delete temp;
 			size--;
+			if (temp->next == 0) last = prev;
 			return;
 		}
 		prev = temp;
@@ -118,6 +116,16 @@ void List::unblock(){
 		}
 		first = 0;
 		last = 0;
+}
+
+int List::countSize(){
+	int s = 0;
+	Elem* temp = first;
+	while (temp){
+		s++;
+		temp = temp->next;
+	}
+	return s;
 }
 
 

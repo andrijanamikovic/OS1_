@@ -6,7 +6,6 @@
 #include "../h/kernel.h"
 #include "SCHEDULE.H"
 #include "LoopT.h"
-#include "syPrintf.h"
 #include "KernelS.h"
 
 volatile unsigned tsp = 0;
@@ -54,8 +53,9 @@ void Karnel::restore(){
 void interrupt Karnel::timer(...){
 	if (!Karnel::contextSwitch){
 
-		if (count > 0) {
-					count--;
+		if (count >= 0) {
+					if (count!=0)
+						count--;
 					asm int 60h;
 					tick();
 
@@ -63,6 +63,7 @@ void interrupt Karnel::timer(...){
 		KernelSem::update();
 
 	}
+
 	if (Karnel::contextSwitch || (count == 0 && PCB::running->timeSlice!=0 )){
 #ifndef BCC_BLOCK_IGNORE
 		asm {

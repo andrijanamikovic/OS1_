@@ -10,7 +10,7 @@
 #include <iostream.h>
 
 #include "../h/kernel.h"
-#include "syPrintf.h"
+
 
 
 
