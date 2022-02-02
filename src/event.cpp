@@ -12,9 +12,9 @@
 #include "KernelE.h"
 
 Event::Event (IVTNo ivtNo){
-	lock
+	//lock
 	myImpl = new KernelEv(ivtNo);
-	unlock
+	//unlock
 }
 Event::~Event (){
 	delete myImpl;

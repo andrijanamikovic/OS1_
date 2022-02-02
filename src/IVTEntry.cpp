@@ -29,6 +29,7 @@ IVTEntry::IVTEntry(IVTNo ivtNo, InterruptRoutine newRoutine){
 IVTEntry::~IVTEntry(){
 	lock
 #ifndef BCC_BLOCK_IGNORE
+	callOldRoutine();
 	setvect(ent, oldRoutine);
 #endif
 	event = 0;
