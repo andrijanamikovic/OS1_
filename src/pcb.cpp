@@ -27,7 +27,7 @@ PCB::PCB(StackSize size, Time time, Thread* thread){
 			myThread = thread;
 			this->timeSlice = time;
 			this->id = currentID++;
-			finished = blocked = started = mainFlag = loopFlag  = NotwaitingSemaphore = 0;
+			finished = blocked = started = mainFlag = loopFlag = lockFlag  = NotwaitingSemaphore = 0;
 			this->stack = 0;
 			this->waitingTime = 0;
 			waitList = new List();

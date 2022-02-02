@@ -1,12 +1,15 @@
 #ifndef _Kernel_h_
 #define _Kernel_h_
 
-#define lock {asm{pushf; cli;}}
-#define unlock {asm popf;}
-
+#include "thread.h"
 class PCB;
-class Thread;
 class LoopThread;
+
+
+#define lockASM {asm{pushf; cli;}}
+#define unlockASM {asm popf;}
+#define lock {Kernel::lck=1;}
+#define unlock {Kernel::lck=0;}
 
 typedef void interrupt (*InterruptRoutine)(...);
 
@@ -15,6 +18,7 @@ extern void tick();
 //static volatile Thread* mainThread;
 class Kernel{
 public:
+	static volatile int lck;
     static void inic();
 	static void restore();
 	static void dispatch();

@@ -16,7 +16,7 @@
 IVTEntry* IVTEntry::IVT[256] = {0};
 //KernelEv* IVTEntry::events[256] = {0};
 IVTEntry::IVTEntry(IVTNo ivtNo, InterruptRoutine newRoutine){
-	lock
+	lockASM
 	this->ent=ivtNo;
 	this->event = 0;
 #ifndef BCC_BLOCK_IGNORE
@@ -24,16 +24,16 @@ IVTEntry::IVTEntry(IVTNo ivtNo, InterruptRoutine newRoutine){
 	setvect(ivtNo, newRoutine);
 #endif
 	IVT[ivtNo] = this;
-	unlock
+	unlockASM
 }
 IVTEntry::~IVTEntry(){
-	lock
+	lockASM
 #ifndef BCC_BLOCK_IGNORE
 	callOldRoutine();
 	setvect(ent, oldRoutine);
 #endif
 	event = 0;
-	unlock
+	unlockASM
 }
 void IVTEntry::signal(){
 	if (event != 0)
@@ -49,7 +49,7 @@ IVTEntry* IVTEntry::get(IVTNo ivtNo){
 }
 
 void IVTEntry::callOldRoutine(){
-	lock
+	lockASM
 	oldRoutine();
-	unlock
+	unlockASM
 }

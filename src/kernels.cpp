@@ -67,6 +67,7 @@ void KernelSem::block(){
 	PCB::running->blocked = 1;
 	if (Listblocked!=0)
 		Listblocked->put((void*)PCB::running);
+	unlock
 	dispatch();
 }
 

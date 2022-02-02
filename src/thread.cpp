@@ -13,9 +13,9 @@
 class Kernel;
 
 Thread::Thread(StackSize stackSize, Time timeSlice){
-	lock
+	//lock
 	myPCB = new PCB(stackSize, timeSlice,this);
-	unlock
+//	unlock
 }
 
 void Thread::start(){
@@ -47,7 +47,9 @@ Thread::~Thread(){
 	}
 }
 void dispatch (){
+	lockASM
 	Kernel::contextSwitch = 1;
+	unlockASM
 	Kernel::timer();
 }
 

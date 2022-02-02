@@ -59,6 +59,7 @@ void KernelEv::wait(){
 			}
 			ThreadIsBlocked = 1;
 			PCB::running->blocked = 1;
+			unlock
 			dispatch();
 		}
 	unlock

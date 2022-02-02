@@ -12,10 +12,10 @@
 #include "KernelS.h"
 
 Semaphore::Semaphore(int init){
-	lock
+	//lock
 	myImpl = new KernelSem(init);
 	//KernelSem::allSem->put((void*)myImpl);
-	unlock
+	//unlock
 
 }
 Semaphore::~Semaphore (){

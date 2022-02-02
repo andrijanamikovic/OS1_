@@ -12,6 +12,8 @@
 #include "thread.h"
 
 
+
+
 //class LoopThread;
 const StackSize maxStackSize = 65536;
 class PCB{
@@ -20,6 +22,7 @@ public:
 	unsigned bp;
 	unsigned sp;
 	unsigned ss;
+	int lockFlag;
 	StackSize size;
 	int finished;
 	int blocked;

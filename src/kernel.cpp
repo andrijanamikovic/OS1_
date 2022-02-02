@@ -13,6 +13,7 @@ volatile unsigned tss = 0;
 volatile unsigned tbp = 0;
 
 volatile int Kernel::contextSwitch = 0;
+volatile int Kernel::lck = 0;
 volatile int Kernel::count = 1;
 InterruptRoutine Kernel::oldTimer = 0;
 volatile LoopThread* Kernel::loopThread = 0;
@@ -31,22 +32,25 @@ void Kernel::inic(){
 	PCB::running = mainThread->myPCB;
 	PCB::madeThreads->put((void*)loopThread->myPCB);
 	count = mainThread->myPCB->timeSlice;
-
+//lockASM
 #ifndef BCC_BLOCK_IGNORE
 	oldTimer = getvect(0x08);
 	setvect(0x60, oldTimer);
 	setvect(0x08, timer);
 #endif
+//unlockASM
 
 }
 
 void Kernel::restore(){
-	asm cli
+	//asm cli
+	lockASM
 	setvect(0x08, oldTimer);
 	delete loopThread;
 	delete mainThread;
 	delete PCB::madeThreads;
-	asm sti
+	//asm sti
+	unlockASM
 }
 
 void interrupt Kernel::timer(...){
@@ -63,7 +67,7 @@ void interrupt Kernel::timer(...){
 
 	}
 
-	if (Kernel::contextSwitch || (count == 0 && PCB::running->timeSlice!=0 )){
+	if (Kernel::contextSwitch || (count == 0 && PCB::running->timeSlice!=0 && lck==0)){
 #ifndef BCC_BLOCK_IGNORE
 		asm {
 						// cuva sp i bp
@@ -90,8 +94,7 @@ void interrupt Kernel::timer(...){
 		tsp = PCB::running->sp;
 		tss = PCB::running->ss;
 		tbp = PCB::running->bp;
-
-			count = PCB::running->timeSlice;
+		count = PCB::running->timeSlice;
 		#ifndef BCC_BLOCK_IGNORE
 			asm {
 							mov sp, tsp   // restore sp i bp
