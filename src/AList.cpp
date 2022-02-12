@@ -13,15 +13,14 @@
 #include "pcb.h"
 
 List::List(){
-	lock
+	//lock
 	first = 0;
 	last = 0;
-	size = 0;
-	unlock
+	//unlock
 }
 
 List::~List(){
-	lock
+	//lock
 	Elem *temp;
 	while (first!=0){
 		temp = first;
@@ -29,7 +28,8 @@ List::~List(){
 		if (temp!=0)
 			delete temp;
 	}
-	unlock
+	first = last = 0;
+	//unlock
 }
 
 
@@ -41,7 +41,6 @@ void* List::pop(){
 	if (temp!=0)
 		delete temp;
 	if (first == 0) last = 0;
-	size--;
 	return data;
 }
 void* List::get(){
@@ -50,6 +49,8 @@ void* List::get(){
 		Elem* temp = first;
 		void* data = first->pcb;
 		//first = first->next;
+		if (temp!=0)
+			delete temp;
 		return data;
 	}
 }
@@ -69,7 +70,6 @@ void List::put(void* pcb){
 
 	}
 	last = pom;
-	size++;
 	unlock
 }
 
@@ -79,9 +79,11 @@ void List::remove(void* pcb){
 	Elem* temp = first;
 	if (temp->pcb == pcb){
 		first = first->next;
+		if (first==0)
+			last = 0;
 		if (temp!=0)
 			delete temp;
-		size--;
+		temp = 0;
 		return;
 	}
 	Elem* prev = temp;
@@ -89,13 +91,16 @@ void List::remove(void* pcb){
 	while (temp!=0){
 		if (temp->pcb == pcb){
 			prev->next = temp->next;
-			size--;
-			if (temp->next == 0) last = prev;
+			if (prev->next==0) last = prev;
+			if (temp!=0)
+				delete temp;
 			return;
 		}
 		prev = temp;
 		temp = temp->next;
 	}
+	temp = prev = 0;
+	return;
 }
 
 void List::unblock(){
@@ -110,8 +115,6 @@ void List::unblock(){
 			}
 			del = temp;
 			temp = temp->next;
-			if (del!=0)
-				delete del;
 		}
 		first = 0;
 		last = 0;
